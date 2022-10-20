@@ -171,7 +171,31 @@ function iniciarApp() {
 
         const btnFav = document.createElement('BUTTON');
         btnFav.classList.add('btn', 'btn-danger', 'col');
-        btnFav.textContent = 'Añadir a Favorito';
+        btnFav.textContent = existeStorage(idMeal) ? 'Eliminar Favorito' : 'Añadir a Favorito';
+
+        // Almacenar en localStorage
+        btnFav.onclick = function() {
+
+
+            if(existeStorage(idMeal)){
+                eliminarFavorito(idMeal);
+                btnFav.textContent = 'Guardar Favorito';
+                mostrarToast('Elminado Correctamente');
+                return
+            };
+
+            agregarFavorito({
+                id: idMeal,
+                titulo: strMeal,
+                img: strMealThumb
+            });
+
+            btnFav.textContent = 'Eliminar Favorito';
+            mostrarToast('Agregado Correctamente');
+
+
+        }
+
 
         const btnCerrar = document.createElement('BUTTON');
         btnCerrar.classList.add('btn', 'btn-secondary', 'col');
@@ -187,6 +211,30 @@ function iniciarApp() {
 
         // Muestra el modal
         modal.show();
+    }
+
+    function agregarFavorito(receta) {
+        const favoritos = JSON.parse(localStorage.getItem('favoritos')) ?? [];
+        localStorage.setItem('favoritos', JSON.stringify([...favoritos, receta]))
+    }
+
+    function eliminarFavorito(id) {
+        const favoritos = JSON.parse(localStorage.getItem('favoritos')) ?? [];
+        const nuevosFavoritos = favoritos.filter(favorito => favorito.id !== id);
+        localStorage.setItem('favoritos', JSON.stringify(nuevosFavoritos));
+    }
+
+    function existeStorage(id) {
+        const favoritos = JSON.parse(localStorage.getItem('favoritos')) ?? [];
+        return favoritos.some(favorito => favorito.id === id);
+    }
+
+    function mostrarToast(mensaje) {
+            const toastDiv = document.querySelector('#toast');
+            const toastBody = document.querySelector('.toast-body');
+            const toast = new bootstrap.Toast(toastDiv);
+            toastBody.textContent = mensaje;
+            toast.show();
     }
 
     function limpiarHTML(selector) {
